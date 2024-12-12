@@ -143,3 +143,18 @@ corrplot(correlation_matrix, method = "color", type = "upper", tl.col = "black",
 
 Notice that the correlations between `claim_status` and other variables are approx. zero, it means there is no linear relationship. However, they can still exhibit non-linear relationship.
 
+
+To evaluate which model is better, we will use ROC and AUC, to compare between True Positive Rate (Sensitivity) against Precision (True Postives/ (True Positives + False Positives)) (Proportion of positive result that are correctly classified) instead of False Positive Rate (1-Specificity).
+
+This is because in our data, number of Negatives or Non-claim is much larger than Positives or Claim. Also, Precision does not include number of True Negatives in its calculation, and is not affected by the imbalance. 
+
+```{r}
+library(rsample)
+set.seed(2024)
+
+claims_split <- Claims_dat %>% 
+  initial_split(prop = 3/4)
+claims_train <- training(claims_split)
+claims_test <- testing(claims_split)
+```
+
