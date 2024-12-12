@@ -25,3 +25,14 @@ convertYN <- c(14:18, 28:39)
 
 Claims_dat[, convertYN] <- lapply(Claims_dat[, convertYN], function(x) ifelse(x == "Yes", 1, 0))
 ```
+
+```{r}
+sapply(Claims_dat, class)
+
+to_factor <- c(5, 7:9, 12, 14:19, 22:23, 28:39)
+Claims_dat[, to_factor] <- lapply(Claims_dat[, to_factor], factor)
+
+# ncap_rating
+# Convert ncap_rating to a factor with all possible levels from 0 to 5
+Claims_dat$ncap_rating <- factor(Claims_dat$ncap_rating, levels = 0:5)
+```
