@@ -64,3 +64,23 @@ Claims_dat %>%
 ```{r}
 Claims_dat <- Claims_dat[, !(names(Claims_dat) %in% low_variance_features)]
 ```
+
+# Subscription Length
+
+```{r}
+ggplot(Claims_dat, aes(x = subscription_length)) +
+  geom_histogram(aes(y = ..density..), bins = 30, fill = "skyblue", color = "black") +
+  geom_density(color = "blue", size = 1) +
+  labs(title = "Enhanced Distribution of Subscription Length",
+       x = "Subscription Length", y = "Density") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(Claims_dat, aes(x = as.factor(claim_status), y = subscription_length, fill = as.factor(claim_status))) +
+  geom_boxplot() +
+  labs(title = "Subscription Length by Claim Status", x = "Claim Status", y = "Subscription Length") +
+  scale_fill_discrete(name = "Claim Status")
+```
+
+The higher median for `Claim Status = 1` indicates that customers with longer subscription lengths may be more slightly make claims
