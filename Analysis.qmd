@@ -84,3 +84,26 @@ ggplot(Claims_dat, aes(x = as.factor(claim_status), y = subscription_length, fil
 ```
 
 The higher median for `Claim Status = 1` indicates that customers with longer subscription lengths may be more slightly make claims
+
+# Vehicle Age
+
+```{r}
+ggplot(Claims_dat, aes(x = vehicle_age)) +
+  geom_histogram(aes(y = ..density..), bins = 30, fill = "skyblue", color = "black") +
+  geom_density(color = "blue", size = 1) +
+  labs(title = "Enhanced Distribution of Vehicle Age",
+       x = "Vehicle Age", y = "Density") +
+  theme_minimal()
+```
+
+Long tails.
+
+```{r}
+ggplot(Claims_dat, aes(x = as.factor(claim_status), y = vehicle_age, fill = as.factor(claim_status))) +
+  geom_boxplot() +
+  labs(title = "Vehicle Age by Claim Status", x = "Claim Status", y = "Vehicle Age") +
+  scale_fill_discrete(name = "Claim Status")
+```
+
+There are more outliers for older vehicles in `Claim Status = 0`. Not much insights can be drawn from this plot.
+
