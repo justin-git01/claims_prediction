@@ -11,3 +11,17 @@ library(tidyverse)
 ```{r}
 Claims_dat <- read.csv("Insurance claims data.csv")
 ```
+
+# Data Exploration and Pre-processing
+
+```{r}
+colSums(is.na(Claims_dat))
+```
+
+No missing values.
+
+```{r}
+convertYN <- c(14:18, 28:39)
+
+Claims_dat[, convertYN] <- lapply(Claims_dat[, convertYN], function(x) ifelse(x == "Yes", 1, 0))
+```
