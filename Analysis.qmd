@@ -61,3 +61,6 @@ Claims_dat %>%
   )
 ```
 
+```{r}
+Claims_dat <- Claims_dat[, !(names(Claims_dat) %in% low_variance_features)]
+```
