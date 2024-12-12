@@ -1,0 +1,13 @@
+---
+title: "Analysis"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+Claims_dat <- read.csv("Insurance claims data.csv")
+```
