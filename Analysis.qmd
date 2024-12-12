@@ -36,3 +36,9 @@ Claims_dat[, to_factor] <- lapply(Claims_dat[, to_factor], factor)
 # Convert ncap_rating to a factor with all possible levels from 0 to 5
 Claims_dat$ncap_rating <- factor(Claims_dat$ncap_rating, levels = 0:5)
 ```
+
+```{r}
+Claims_dat <- Claims_dat |>
+  select(c(-policy_id, engine_type)) 
+```
+
