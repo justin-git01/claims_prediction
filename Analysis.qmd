@@ -107,3 +107,25 @@ ggplot(Claims_dat, aes(x = as.factor(claim_status), y = vehicle_age, fill = as.f
 
 There are more outliers for older vehicles in `Claim Status = 0`. Not much insights can be drawn from this plot.
 
+## Customer Age
+
+Younger drivers with older vehicles and vice versa might show different claim behaviours.
+
+Certain groups might prefer newer vehicles, which correlate with claims likelihood.
+
+```{r}
+ggplot(Claims_dat, aes(x = customer_age)) +
+  geom_histogram(aes(y = ..density..), bins = 30, fill = "skyblue", color = "black") +
+  geom_density(color = "blue", size = 1) +
+  labs(title = "Enhanced Distribution of Subscription Length",
+       x = "Customer Age", y = "Density") +
+  theme_minimal()
+``` 
+
+```{r}
+ggplot(Claims_dat, aes(x = customer_age, y = vehicle_age, color = as.factor(claim_status))) +
+  geom_point(alpha = 0.6) +
+  labs(title = "Interaction of Customer Age and Vehicle Age by Claim Status", x = "Customer Age", y = "Vehicle Age", color = "Claim Status")
+
+```
+
