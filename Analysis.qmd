@@ -129,3 +129,17 @@ ggplot(Claims_dat, aes(x = customer_age, y = vehicle_age, color = as.factor(clai
 
 ```
 
+## Correlation
+
+```{r}
+library(corrplot)
+
+# Calculate the correlation matrix (use only numeric columns)
+correlation_matrix <- cor(Claims_dat[sapply(Claims_dat, is.numeric)], use = "complete.obs")
+
+# Plot the correlation matrix
+corrplot(correlation_matrix, method = "color", type = "upper", tl.col = "black", tl.srt = 45)
+```
+
+Notice that the correlations between `claim_status` and other variables are approx. zero, it means there is no linear relationship. However, they can still exhibit non-linear relationship.
+
