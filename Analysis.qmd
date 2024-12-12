@@ -42,3 +42,22 @@ Claims_dat <- Claims_dat |>
   select(c(-policy_id, engine_type)) 
 ```
 
+```{r}
+library(caret)
+nzv <- nearZeroVar(Claims_dat, saveMetrics= TRUE)
+low_variance_features <- rownames(nzv[nzv$nzv == TRUE, ])
+
+Claims_dat %>%
+  select(all_of(low_variance_features), claim_status) %>%
+  pivot_longer(cols = all_of(low_variance_features), 
+               names_to = "Feature", 
+               values_to = "Value") %>%
+  group_by(Feature, Value) %>%
+  summarise(
+    Total_Policies = n(),
+    Total_Claims = sum(claim_status),
+    Claim_Proportion = round(Total_Claims/Total_Policies, 4),
+    .groups = 'drop'
+  )
+```
+
