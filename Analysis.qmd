@@ -158,3 +158,27 @@ claims_train <- training(claims_split)
 claims_test <- testing(claims_split)
 ```
 
+
+## GBM
+
+```{r}
+library(gbm)
+class_boost <- gbm(claim_status ~ .,
+                   data = claims_train,
+                   distribution = "bernoulli", # binary logistic regression
+                   n.trees = 2000,
+                   shrinkage = 0.01,
+                   interaction.depth = 1,
+                   cv.folds = 10)
+
+Jclass <- gbm.perf(class_boost, method = "cv")
+Jclass 
+
+class_boost_optimal <- gbm(claim_status ~ .,
+                           data = claims_train,
+                           distribution = "bernoulli",
+                           n.trees = Jclass,
+                           shrinkage = 0.01,
+                           interaction.depth = 1)
+```
+
