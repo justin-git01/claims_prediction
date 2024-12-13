@@ -153,23 +153,11 @@ To evaluate which model is better, we will use ROC and AUC, to compare between T
 
 This is because in our data, number of Negatives or Non-claim is much larger than Positives or Claim. Also, Precision does not include number of True Negatives in its calculation, and is not affected by the imbalance. 
 
-```{r}
-library(rsample)
-set.seed(2024)
-
-claims_split <- Claims_dat %>% 
-  initial_split(prop = 3/4)
-claims_train <- training(claims_split)
-claims_test <- testing(claims_split)
-```
-
-
-## GBM
 
 ```{r}
 library(gbm)
 class_boost <- gbm(claim_status ~ .,
-                   data = claims_train,
+                   data = Claims_dat,
                    distribution = "bernoulli", # binary logistic regression
                    n.trees = 2000,
                    shrinkage = 0.01,
@@ -180,10 +168,96 @@ Jclass <- gbm.perf(class_boost, method = "cv")
 Jclass 
 
 class_boost_optimal <- gbm(claim_status ~ .,
-                           data = claims_train,
+                           data = Claims_dat,
                            distribution = "bernoulli",
                            n.trees = Jclass,
                            shrinkage = 0.01,
                            interaction.depth = 1)
 ```
+
+We use `vip` package to determine the the feature importance, which measures how each variable contributes to the predictive power of the model.
+
+```{r}
+library(vip)
+
+vi(class_boost_optimal)
+vip(class_boost_optimal)
+```
+
+We will use `subscription_length`, `vehicle_age`, `region_code`, `customer_age`, and `model` to as features to predict the claim status, and eliminate the rest.
+
+```{r}
+Claims_dat <- Claims_dat |>
+  select(c(subscription_length, vehicle_age, region_code, customer_age, model, claim_status))
+```
+
+
+```{r}
+library(rsample)
+set.seed(2024)
+
+claims_split <- Claims_dat %>% 
+  initial_split(prop = 3/4)
+claims_train <- training(claims_split)
+claims_test <- testing(claims_split)
+```
+
+Since number of claims is under-represented compared to number of non-claims, we will use put more weights on value of 1 of `claim_status`. We will use cross-validation to determine how much weights to put on claims (2-10) and use ROC_AUC to choose the optimal weights
+
+## GBM
+
+```{r}
+library(gbm)
+library(pROC)
+
+weight <- seq(2,10, by = 1)
+class_boost <- gbm(claim_status ~ .,
+                   data = claims_train,
+                   distribution = "bernoulli", # binary logistic regression
+                   n.trees = 2000,
+                   shrinkage = 0.01,
+                   interaction.depth = 1,
+                   cv.folds = 10,
+                   weight = ifelse(claims_status == 1, weight, 1))
+
+Jclass <- gbm.perf(class_boost, method = "cv")
+Jclass 
+
+class_boost_optimal <- gbm(claim_status ~ .,
+                           data = claims_train,
+                           distribution = "bernoulli",
+                           n.trees = Jclass,
+                           shrinkage = 0.01,
+                           interaction.depth = 1,
+                           weight = ifelse(claims_status == 1, weight, 1))
+```
+
+```{r}
+# Initialize variables to store results
+auc_results <- numeric(length(weights_to_test))
+
+for (i in seq_along(weights_to_test)) {
+  # Current weight
+  weight <- weights_to_test[i]
+  
+  # Fit GBM model with weights
+  class_boost <- gbm(claim_status ~ .,
+                     data = claims_train,
+                     distribution = "bernoulli", # binary logistic regression
+                     n.trees = 2000,
+                     shrinkage = 0.01,
+                     interaction.depth = 1,
+                     cv.folds = 10,
+                     weights = ifelse(claim_status == 1, weight, 1))
+  
+  # Evaluate using cross-validated AUC
+  cv_pred <- predict(class_boost, claims_train, n.trees = gbm.perf(class_boost, method = "cv"), type = "response")
+  auc_results[i] <- roc(claims_train$claim_status, cv_pred)$auc
+}
+
+# Combine results into a data frame
+results <- data.frame(weight = weights_to_test, auc = auc_results)
+print(results)
+```
+
 
