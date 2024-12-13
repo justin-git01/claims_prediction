@@ -39,7 +39,7 @@ Claims_dat$ncap_rating <- factor(Claims_dat$ncap_rating, levels = 0:5)
 
 ```{r}
 Claims_dat <- Claims_dat |>
-  select(c(-policy_id, engine_type)) 
+  select(-c(policy_id, engine_type, max_torque, max_power)) 
 ```
 
 ```{r}
@@ -61,6 +61,8 @@ Claims_dat %>%
   )
 ```
 
+There is not much difference in proportion of claims between having parking sensors, power steering and speed alert or not. We then can remove these variables as having these features or not does not affect the likelihood of claims.
+
 ```{r}
 Claims_dat <- Claims_dat[, !(names(Claims_dat) %in% low_variance_features)]
 ```
@@ -75,6 +77,10 @@ ggplot(Claims_dat, aes(x = subscription_length)) +
        x = "Subscription Length", y = "Density") +
   theme_minimal()
 ```
+
+* Peaks in the distribution at 0, 5 and 10 years. This may indicate common subscription duration where customers either start, renew or cancel policies. Peak at around zero means a new wave of new customers just subscribe the policy.
+
+* The distribution is not uniform, which suggests segmentation in customer subscription.
 
 ```{r}
 ggplot(Claims_dat, aes(x = as.factor(claim_status), y = subscription_length, fill = as.factor(claim_status))) +
@@ -96,7 +102,11 @@ ggplot(Claims_dat, aes(x = vehicle_age)) +
   theme_minimal()
 ```
 
-Long tails.
+* Strong concentration of vehicles with age around 0-2 years, suggesting most insured vehicles are new.
+
+* Rapid decline after 2 years mark. Older vehicle may be less likely to carry insurance (e.g. reduced in value of vehicles)
+
+* Long tails. There are vehicles with age of 20 years.
 
 ```{r}
 ggplot(Claims_dat, aes(x = as.factor(claim_status), y = vehicle_age, fill = as.factor(claim_status))) +
@@ -105,7 +115,7 @@ ggplot(Claims_dat, aes(x = as.factor(claim_status), y = vehicle_age, fill = as.f
   scale_fill_discrete(name = "Claim Status")
 ```
 
-There are more outliers for older vehicles in `Claim Status = 0`. Not much insights can be drawn from this plot.
+There are more outliers for older vehicles in `Claim Status = 0`, meaning for this type of insurance, old vehicles tends to do not make claims.
 
 ## Customer Age
 
@@ -114,20 +124,15 @@ Younger drivers with older vehicles and vice versa might show different claim be
 Certain groups might prefer newer vehicles, which correlate with claims likelihood.
 
 ```{r}
-ggplot(Claims_dat, aes(x = customer_age)) +
-  geom_histogram(aes(y = ..density..), bins = 30, fill = "skyblue", color = "black") +
-  geom_density(color = "blue", size = 1) +
-  labs(title = "Enhanced Distribution of Subscription Length",
-       x = "Customer Age", y = "Density") +
-  theme_minimal()
-``` 
-
-```{r}
-ggplot(Claims_dat, aes(x = customer_age, y = vehicle_age, color = as.factor(claim_status))) +
+ggplot(Claims_dat, aes(x = customer_age, y = vehicle_age)) +
   geom_point(alpha = 0.6) +
   labs(title = "Interaction of Customer Age and Vehicle Age by Claim Status", x = "Customer Age", y = "Vehicle Age", color = "Claim Status")
 
 ```
+
+* There is no clear relationship between customer age and their vehicle age. While most vehicles at around 5-6 years of age are held by all age groups, extremely old vehicles (20 years) are spread across age group (U40, U50, U60).
+
+* All customers for this policy are 35 years old and above, which indicates matured or somewhat old pool of customer. This may be due to some specific age or age-related requirements of the policy.
 
 ## Correlation
 
